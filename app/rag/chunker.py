@@ -2,6 +2,8 @@ from typing import List, Dict
 
 def chunk_text(
         text: str,
+        source: str = "user_input",
+        title: str = "Uploaded Text",
         chunk_size: int = 1000,
         overlap: int = 100
 ) -> List[Dict]:
@@ -13,11 +15,16 @@ def chunk_text(
 
     while start < len(text):
         end = min(start + chunk_size, text_length)
-        chunk_content = text[start:end]
+        content = text[start:end]
 
         chunks.append({
-            "chunk_index": chunk_index,
-            "content": chunk_content
+            "content": content,
+            "metadeta": {
+                "source": source,
+                "title": title,
+                "chunk_index": chunk_index,
+                "position": start
+            }
         })
 
         chunk_index += 1

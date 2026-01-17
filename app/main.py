@@ -15,7 +15,12 @@ def health_check():
 
 @app.post("/ingest")
 def ingest_document(doc: DocumentInput):
-    chunks = chunk_text(doc.text)
+    chunks = chunk_text(
+        text = doc.text,
+        source = "user_input",
+        title = "Uploaded Text"
+        )
+    
     return {
         "message": "Document Ingested and Chunked Successfully",
         "total_chunks": len(chunks),
