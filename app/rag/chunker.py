@@ -13,13 +13,14 @@ def chunk_text(
     chunk_index = 0
     text_length = len(text)
 
-    while start < len(text):
+    while start < text_length:
         end = min(start + chunk_size, text_length)
         content = text[start:end]
 
         chunks.append({
             "content": content,
             "metadata": {
+                "content": content,
                 "source": source,
                 "title": title,
                 "chunk_index": chunk_index,

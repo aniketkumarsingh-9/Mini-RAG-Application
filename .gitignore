@@ -1,3 +1,18 @@
-.env
-venv/
+# Python
 __pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+.env
+
+# HuggingFace cache
+.cache/
+.huggingface/
+
+# Streamlit
+.streamlit/
+
+# OS files
+.DS_Store
+Thumbs.db

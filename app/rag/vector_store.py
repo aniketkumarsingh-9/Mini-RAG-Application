@@ -19,16 +19,21 @@ client = QdrantClient(
 
 def upsert_embeddings(
         embeddings: List[List[float]],
+        texts: List[str],
         metadatas: List[dict]
 ):
     points = []
 
-    for vector, metadata in zip(embeddings, metadatas):
+    for vector, text, metadata in zip(embeddings, texts, metadatas):
+        payload = {
+            "content": text,
+            **metadata
+        }
         points.append(
             PointStruct(
                 id = str(uuid.uuid4()),
                 vector = vector,
-                payload = metadata
+                payload = payload
             )
         )
 
@@ -52,11 +57,37 @@ def search_embeddings(
     hits = response.points if hasattr(response, "points") else response
 
     results = []
+    seen = set()
+
     for hit in hits:
-        results.append({
-            "content": hit.payload.get("content"),
-            "metadata": hit.payload,
-            "score": hit.score
+        content = hit.payload.get("content")
+
+        if content and content not in seen:
+            seen.add(content)
+            results.append({
+                "content": content,
+                "metadata": hit.payload,
+                "score": hit.score
         })
     
     return results
+
+def get_collection_stats():
+    info = client.get_collection(COLLECTION_NAME)
+
+    return {
+        "collection": COLLECTION_NAME,
+        "total_vectors": info.points_count,
+        "vector_size": info.config.params.vectors.size,
+        "status": "healthy"
+    }
+
+def clear_collection():
+    client.delete_collection(collection_name=COLLECTION_NAME)
+    client.create_collection(
+        collection_name=COLLECTION_NAME,
+        vectors_config={
+            "size": 384,
+            "distance": "Cosine"
+        }
+    )
