@@ -19,7 +19,7 @@ def chunk_text(
 
         chunks.append({
             "content": content,
-            "metadeta": {
+            "metadata": {
                 "source": source,
                 "title": title,
                 "chunk_index": chunk_index,
