@@ -3,3 +3,4 @@ uvicorn
 streamlit
 python-dotenv
 sentence-transformers
+qdrant-client
