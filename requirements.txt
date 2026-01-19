@@ -3,7 +3,8 @@ uvicorn==0.29.0
 
 sentence-transformers==2.6.1
 transformers==4.38.2
-torch==2.2.2
+torch>=2.0.0,<2.2
+
 
 qdrant-client==1.8.2
 python-dotenv==1.0.1
