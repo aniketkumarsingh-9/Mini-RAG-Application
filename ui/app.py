@@ -1,35 +1,49 @@
 import streamlit as st
-import requests
+import logging
 
-BACKEND_URL = "http://127.0.0.1:8000"
+from app.rag.chunker import chunk_text
+from app.rag.embedder import embed_texts
+from app.rag.vector_store import (
+    clear_collection,
+    upsert_embeddings,
+    search_embeddings,
+    get_collection_stats,
+)
+from app.rag.llm import generate_answer
 
-st.set_page_config(page_title= "Mini RAG App", layout= "centered")
+logging.basicConfig(level=logging.INFO)
+
+st.set_page_config(page_title="Mini RAG App", layout="centered")
 st.title("Mini RAG Application")
 
+# -----------------------------
+# Ingest Document
+# -----------------------------
 st.header("1. Ingest Document")
 
 doc_text = st.text_area(
-    "Write Your document text here:", 
-    height= 200
-    
+    "Write your document text here:",
+    height=200
 )
 
 if st.button("Ingest Document"):
     if not doc_text.strip():
         st.warning("Please enter some text.")
     else:
-        response = requests.post(
-            f"{BACKEND_URL}/ingest",
-            json={"text": doc_text}
-        )
+        clear_collection()
 
-        if response.status_code == 200:
-            st.success("Document ingested successfully!")
-            st.json(response.json())
-        else:
-            st.error("Failed to ingest document.")
+        chunks = chunk_text(doc_text)
+        texts = [c["content"] for c in chunks]
+        metadatas = [c["metadata"] for c in chunks]
 
+        embeddings = embed_texts(texts)
+        upsert_embeddings(embeddings, texts, metadatas)
 
+        st.success(f"Document ingested successfully! Chunks: {len(chunks)}")
+
+# -----------------------------
+# Ask Question
+# -----------------------------
 st.header("2. Ask a Question")
 
 query = st.text_input("Enter your question:")
@@ -39,29 +53,26 @@ if st.button("Get Answer"):
     if not query.strip():
         st.warning("Please enter a question.")
     else:
-        response = requests.post(
-            f"{BACKEND_URL}/query",
-            json= {"query": query, "top_k": top_k}
-        )
+        query_embedding = embed_texts([query])[0]
+        search_results = search_embeddings(query_embedding, top_k)
 
-        if response.status_code == 200:
-            data = response.json()
+        if not search_results:
+            st.subheader("Answer")
+            st.write("No relevant information found.")
+        else:
+            contexts = [r["content"] for r in search_results if r["content"]]
+            answer = generate_answer(query, contexts)
+
+            confidence = sum(r["score"] for r in search_results) / len(search_results)
 
             st.subheader("Answer")
-            st.write(data.get("answer"))
+            st.write(answer)
 
-            sources = data.get("sources", [])
-            if sources:
-                confidence = max(src["score"] for src in sources)
-                st.subheader("Confidence")
-                st.write(round(confidence, 3))
+            st.subheader("Confidence")
+            st.write(round(confidence, 3))
 
             st.subheader("Sources")
-            for i, src in enumerate(data.get("sources", []), start=1):
+            for i, r in enumerate(search_results, 1):
                 st.markdown(f"**Source {i}:**")
-                st.write(src["content"])
-                st.caption(f"Score: {src['score']}")
-        
-        else:
-            st.error("Failed to get answer.")
-    
+                st.write(r["content"])
+                st.caption(f"Score: {round(r['score'], 3)}")

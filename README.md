@@ -1,3 +1,15 @@
+---
+title: Mini RAG Application
+emoji: 🤖
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
+
+
 # Mini RAG Application
 
 This project is a Mini Retrieval-Augmented Generation (RAG) application that combines
