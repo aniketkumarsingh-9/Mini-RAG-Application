@@ -8,12 +8,16 @@ logging.basicConfig(
 
 from fastapi import FastAPI
 from pydantic import BaseModel
-from app.rag.chunker import chunk_text
-from app.rag.embedder import embed_texts
-from app.rag.vector_store import clear_collection, upsert_embeddings
-from app.rag.vector_store import search_embeddings
-from app.rag.llm import generate_answer
-from app.rag.vector_store import get_collection_stats
+from backend.rag.chunker import chunk_text
+from backend.rag.embedder import embed_texts
+from backend.rag.vector_store import (
+    clear_collection,
+    upsert_embeddings,
+    search_embeddings,
+    get_collection_stats,
+)
+from backend.rag.llm import generate_answer
+
 
 app = FastAPI(title="Mini RAG App")
 

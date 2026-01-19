@@ -1,17 +1,17 @@
-import streamlit as st
-import logging
-
-import streamlit as st
-from app.rag.chunker import chunk_text
-from app.rag.embedder import embed_texts
-from app.rag.vector_store import clear_collection, upsert_embeddings, search_embeddings
-from app.rag.llm import generate_answer
-
 import sys
 import os
 
 # Add project root to PYTHONPATH
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+import streamlit as st
+import logging
+
+import streamlit as st
+from backend.rag.chunker import chunk_text
+from backend.rag.embedder import embed_texts
+from backend.rag.vector_store import clear_collection, upsert_embeddings, search_embeddings
+from backend.rag.llm import generate_answer
 
 logging.basicConfig(level=logging.INFO)
 
