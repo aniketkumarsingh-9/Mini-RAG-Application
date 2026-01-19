@@ -83,5 +83,4 @@ def get_collection_stats():
     }
 
 def clear_collection():
-    if not client.collection_exists(COLLECTION_NAME):
-        return
+    return
