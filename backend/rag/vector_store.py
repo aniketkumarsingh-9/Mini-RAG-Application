@@ -6,6 +6,8 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct
 from dotenv import load_dotenv
 
+from backend.rag.setup_qdrant import create__collection
+
 load_dotenv()
 
 QDRANT_URL = os.getenv("QDRANT_URL")
@@ -47,14 +49,14 @@ def search_embeddings(
         top_k: int = 5
 ):
     
-    response = client.query_points(
-        collection_name = COLLECTION_NAME,
-        query = query_vector,
-        limit = top_k,
-        with_payload = True
+    response = client.search(
+        collection_name=COLLECTION_NAME,
+        query_vector=query_vector,
+        limit=top_k,
+        with_payload=True
     )
 
-    hits = response.points if hasattr(response, "points") else response
+    hits = response
 
     results = []
     seen = set()
@@ -83,4 +85,5 @@ def get_collection_stats():
     }
 
 def clear_collection():
-    return
+    client.delete_collection(collection_name=COLLECTION_NAME)
+    create__collection()
