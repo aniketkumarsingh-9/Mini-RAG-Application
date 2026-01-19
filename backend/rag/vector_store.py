@@ -83,11 +83,5 @@ def get_collection_stats():
     }
 
 def clear_collection():
-    client.delete_collection(collection_name=COLLECTION_NAME)
-    client.create_collection(
-        collection_name=COLLECTION_NAME,
-        vectors_config={
-            "size": 384,
-            "distance": "Cosine"
-        }
-    )
+    if not client.collection_exists(COLLECTION_NAME):
+        return
